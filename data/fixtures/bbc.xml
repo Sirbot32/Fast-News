@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>BBC News (sample)</title>
+    <item>
+      <title>Wildfires force thousands to evacuate across southern Europe</title>
+      <link>https://example.com/bbc/wildfires</link>
+      <description>Record heat fuels blazes in Greece, Spain and Italy.</description>
+      <pubDate>Tue, 23 Jun 2026 08:10:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Central bank raises interest rates to tame inflation</title>
+      <link>https://example.com/bbc/rates</link>
+      <description>The benchmark rate rises a quarter point.</description>
+      <pubDate>Tue, 23 Jun 2026 06:30:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Scientists report breakthrough in fusion energy test</title>
+      <link>https://example.com/bbc/fusion</link>
+      <description>Reactor sustains reaction for a record duration.</description>
+      <pubDate>Mon, 22 Jun 2026 17:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,15 @@
+{
+  "_comment": "Edit this file to change sources. Each feed: name (shown as the source badge), url (RSS/Atom), category. Add or remove freely.",
+  "feeds": [
+    { "name": "BBC",        "url": "https://feeds.bbci.co.uk/news/rss.xml",            "category": "Top" },
+    { "name": "BBC World",  "url": "https://feeds.bbci.co.uk/news/world/rss.xml",      "category": "World" },
+    { "name": "NPR",        "url": "https://feeds.npr.org/1001/rss.xml",               "category": "Top" },
+    { "name": "CNN",        "url": "http://rss.cnn.com/rss/cnn_topstories.rss",        "category": "Top" },
+    { "name": "Guardian",   "url": "https://www.theguardian.com/world/rss",            "category": "World" },
+    { "name": "Al Jazeera", "url": "https://www.aljazeera.com/xml/rss/all.xml",        "category": "World" },
+    { "name": "Sky News",   "url": "https://feeds.skynews.com/feeds/rss/world.xml",    "category": "World" },
+    { "name": "CBS",        "url": "https://www.cbsnews.com/latest/rss/main",          "category": "Top" },
+    { "name": "ABC News",   "url": "https://abcnews.go.com/abcnews/topstories",        "category": "Top" },
+    { "name": "Google News","url": "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en", "category": "Top" }
+  ]
+}

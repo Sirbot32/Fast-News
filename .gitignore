@@ -1,0 +1,5 @@
+# Generated site output (rebuild with: python3 main.py)
+/site/
+__pycache__/
+*.pyc
+.DS_Store

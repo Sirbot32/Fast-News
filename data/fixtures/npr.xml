@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>NPR News (sample)</title>
+  <entry>
+    <title>Wildfires across southern Europe prompt evacuation orders</title>
+    <link rel="alternate" href="https://example.com/npr/wildfires"/>
+    <summary>Authorities urge residents to leave as flames advance.</summary>
+    <published>2026-06-23T11:00:00Z</published>
+  </entry>
+  <entry>
+    <title>Election results confirm narrow victory for incumbents</title>
+    <link rel="alternate" href="https://example.com/npr/election"/>
+    <summary>The opposition concedes after a close count.</summary>
+    <published>2026-06-23T01:15:00Z</published>
+  </entry>
+  <entry>
+    <title>Storm system brings heavy flooding to the Gulf Coast</title>
+    <link rel="alternate" href="https://example.com/npr/flooding"/>
+    <summary>Several communities report rising water levels.</summary>
+    <published>2026-06-21T14:40:00Z</published>
+  </entry>
+</feed>

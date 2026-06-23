@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>CNN Top Stories (sample)</title>
+    <item>
+      <title>Thousands evacuated as wildfires spread across southern Europe</title>
+      <link>https://example.com/cnn/wildfires</link>
+      <description>Firefighters battle blazes amid a brutal heatwave.</description>
+      <pubDate>Tue, 23 Jun 2026 09:05:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Central bank hikes interest rates as inflation persists</title>
+      <link>https://example.com/cnn/rates</link>
+      <description>Policymakers signal more increases may follow.</description>
+      <pubDate>Tue, 23 Jun 2026 07:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Tech giant unveils new AI assistant at developer conference</title>
+      <link>https://example.com/cnn/ai</link>
+      <description>The company says the model is its most capable yet.</description>
+      <pubDate>Mon, 22 Jun 2026 19:30:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

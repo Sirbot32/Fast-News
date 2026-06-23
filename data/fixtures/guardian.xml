@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>The Guardian World (sample)</title>
+    <item>
+      <title>Southern Europe wildfires force mass evacuations amid heatwave</title>
+      <link>https://example.com/guardian/wildfires</link>
+      <description>Tens of thousands flee as temperatures soar.</description>
+      <pubDate>Tue, 23 Jun 2026 10:20:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>National election delivers narrow win for incumbent party</title>
+      <link>https://example.com/guardian/election</link>
+      <description>Results confirmed after a tight contest.</description>
+      <pubDate>Mon, 22 Jun 2026 22:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Interest rates raised again by central bank</title>
+      <link>https://example.com/guardian/rates</link>
+      <description>The move aims to bring inflation back to target.</description>
+      <pubDate>Tue, 23 Jun 2026 07:45:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
