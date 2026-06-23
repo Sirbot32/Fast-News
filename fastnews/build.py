@@ -5,10 +5,37 @@ from __future__ import annotations
 import html
 import json
 import os
+import re
 from datetime import datetime, timezone
 
 from .config import SITE_DIR
 from .rank import Cluster
+
+# Number of top stories that get a summary blurb shown.
+SUMMARY_TOP_N = 5
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_WS_RE = re.compile(r"\s+")
+
+
+def clean_summary(text: str, limit: int = 220) -> str:
+    """Turn a raw RSS/Atom description into plain, trimmed summary text.
+
+    Feed blurbs often contain HTML tags, entities, and trailing boilerplate
+    ('Continue reading...'). Strip tags, unescape entities, collapse
+    whitespace, and truncate at a word boundary.
+    """
+    if not text:
+        return ""
+    text = html.unescape(_TAG_RE.sub(" ", text))
+    text = _WS_RE.sub(" ", text).strip()
+    # Drop common 'read more' tails.
+    text = re.sub(r"\s*(Continue reading|Read more|Read full story).*$", "",
+                  text, flags=re.IGNORECASE)
+    if len(text) > limit:
+        cut = text[:limit].rsplit(" ", 1)[0].rstrip(",;:.-")
+        text = cut + "…"
+    return text
 
 
 def _ago(dt: datetime, now: datetime) -> str:
@@ -38,7 +65,7 @@ def clusters_to_data(clusters: list[Cluster], now: datetime) -> list[dict]:
             "rank": rank_idx,
             "title": rep.title,
             "link": rep.link,
-            "summary": rep.summary,
+            "summary": clean_summary(rep.summary),
             "sources": cl.sources,
             "source_count": cl.source_count,
             "categories": cl.categories,
@@ -61,6 +88,18 @@ def _render_story(story: dict) -> str:
     title = html.escape(story["title"])
     link = html.escape(story["link"] or "#")
     dom = html.escape(_domain(story["link"]))
+
+    # Summary blurb under the top N headlines only.
+    summary_html = ""
+    if story["rank"] <= SUMMARY_TOP_N and story["summary"]:
+        summary_html = f'<p class="summary">{html.escape(story["summary"])}</p>'
+
+    # Explicit "Read full story" link to the source article.
+    read_html = ""
+    if story["link"]:
+        read_html = (f'<a class="read" href="{link}" target="_blank" rel="noopener">'
+                     f'Read full story →</a>')
+
     also_html = ""
     if story["also"]:
         items = "".join(
@@ -84,7 +123,9 @@ def _render_story(story: dict) -> str:
           <span class="dot">·</span>
           <span class="domain">{dom}</span>
         </div>
+        {summary_html}
         <div class="sources">{sources}</div>
+        {read_html}
         {also_html}
       </div>
     </article>"""
@@ -158,7 +199,11 @@ def render_html(clusters: list[Cluster], now: datetime,
   .meta {{ font-size:12.5px; color:var(--muted); display:flex; gap:7px; align-items:center; flex-wrap:wrap; }}
   .coverage {{ color:var(--accent); font-weight:600; }}
   .dot {{ opacity:.5; }}
+  .summary {{ margin:8px 0 0; font-size:14.5px; color:var(--text); opacity:.92; }}
   .sources {{ font-size:12.5px; color:var(--muted); margin-top:6px; }}
+  .read {{ display:inline-block; margin-top:8px; font-size:13px; font-weight:600;
+    color:var(--accent); text-decoration:none; }}
+  .read:hover {{ text-decoration:underline; }}
   .also {{ margin-top:8px; font-size:13px; }}
   .also summary {{ cursor:pointer; color:var(--link); }}
   .also ul {{ margin:8px 0 0; padding-left:16px; }}
