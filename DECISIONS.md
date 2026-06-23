@@ -4,6 +4,26 @@ Persistent memory across sessions. Newest first.
 
 ---
 
+## 2026-06-23 — Barebones Digg-style redesign
+
+User feedback: the first design read "too AI" and cluttered. Added two advisors
+to the council: **the Designer** and **the Consumer Analyst**. Both converged on:
+strip to a numbered list on a white background, one accent for links only,
+hairline dividers instead of cards, a single dark-mode toggle button, no emoji,
+no pills. Consumer Analyst's rule: the visitor has ~30 seconds — anything that
+isn't a headline, a one-line summary, or a link is friction.
+
+Implemented in `build.py`:
+- White default theme; dark mode via a single text toggle that persists in
+  `localStorage` (does not auto-follow OS, so "white background" is the default).
+- Each story is a row: left **count box** (distinct-source count) + headline +
+  summary (top 5 only) + sources·time meta + "Read full story →".
+- Category filter is plain text links, not buttons.
+- Removed: dark default, gradient/card styling, 🔥 emoji, the explainer tagline,
+  domain line, `_domain()` helper.
+- Confirmed: no accounts, no subscriptions, opens as a single static file.
+
+
 ## 2026-06-23 — v1 scope agreed (via the Council)
 
 **Brief:** A fast way to get the most important news of the week, plus a historic

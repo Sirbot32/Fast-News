@@ -48,15 +48,6 @@ def _ago(dt: datetime, now: datetime) -> str:
     return f"{secs // 86400}d ago"
 
 
-def _domain(url: str) -> str:
-    try:
-        from urllib.parse import urlparse
-        net = urlparse(url).netloc
-        return net[4:] if net.startswith("www.") else net
-    except Exception:
-        return ""
-
-
 def clusters_to_data(clusters: list[Cluster], now: datetime) -> list[dict]:
     out = []
     for rank_idx, cl in enumerate(clusters, start=1):
@@ -87,7 +78,6 @@ def _render_story(story: dict) -> str:
     sources = " · ".join(html.escape(s) for s in story["sources"])
     title = html.escape(story["title"])
     link = html.escape(story["link"] or "#")
-    dom = html.escape(_domain(story["link"]))
 
     # Summary blurb under the top N headlines only.
     summary_html = ""
@@ -111,20 +101,16 @@ def _render_story(story: dict) -> str:
             f'<details class="also"><summary>Also covered by {len(story["also"])} more</summary>'
             f'<ul>{items}</ul></details>'
         )
+    meta = f"{sources} · {html.escape(story['ago'])}"
     return f"""
     <article class="story" data-cats="{cats}">
-      <div class="rank">{story['rank']}</div>
+      <div class="count" title="Covered by {badge} {badge_label}">
+        <span class="n">{badge}</span><span class="lbl">{badge_label}</span>
+      </div>
       <div class="body">
         <h2><a href="{link}" target="_blank" rel="noopener">{title}</a></h2>
-        <div class="meta">
-          <span class="coverage" title="Covered by {badge} distinct sources">🔥 {badge} {badge_label}</span>
-          <span class="dot">·</span>
-          <span class="time">{html.escape(story['ago'])}</span>
-          <span class="dot">·</span>
-          <span class="domain">{dom}</span>
-        </div>
         {summary_html}
-        <div class="sources">{sources}</div>
+        <div class="meta">{meta}</div>
         {read_html}
         {also_html}
       </div>
@@ -141,17 +127,17 @@ def render_html(clusters: list[Cluster], now: datetime,
         for c in s["categories"]:
             if c not in cats:
                 cats.append(c)
-    cat_buttons = '<button class="cat active" data-cat="*">All</button>' + "".join(
-        f'<button class="cat" data-cat="{html.escape(c)}">{html.escape(c)}</button>' for c in cats
+    cat_links = '<a class="cat active" data-cat="*">All</a>' + "".join(
+        f'<a class="cat" data-cat="{html.escape(c)}">{html.escape(c)}</a>' for c in cats
     )
     stories_html = "\n".join(_render_story(s) for s in data) or \
         '<p class="empty">No stories yet. Run <code>python3 main.py</code> with network access.</p>'
 
-    generated = now.strftime("%a %d %b %Y, %H:%M UTC")
+    generated = now.strftime("%d %b %Y, %H:%M UTC")
     note = ""
     if sample_mode:
-        note = ('<div class="note">Showing <strong>sample data</strong> — '
-                'live feeds were unreachable. Run again with network access for real news.</div>')
+        note = ('<div class="note">Showing sample data — live feeds were '
+                'unreachable. Run again with network access for real news.</div>')
     elif errors:
         note = (f'<div class="note">{len(errors)} feed(s) skipped this run '
                 f'({html.escape(", ".join(n for n, _ in errors))}).</div>')
@@ -161,70 +147,71 @@ def render_html(clusters: list[Cluster], now: datetime,
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fast-News — the week that mattered</title>
+<title>Fast News</title>
+<script>try{{document.documentElement.dataset.theme=localStorage.getItem('theme')||'light';}}catch(e){{}}</script>
 <style>
   :root {{
-    --bg:#0f1115; --card:#181b22; --card2:#1f232c; --text:#e8eaed;
-    --muted:#9aa3b2; --accent:#ff6a3d; --line:#2a2f3a; --link:#7fb1ff;
+    --bg:#ffffff; --text:#111111; --muted:#6b7280; --line:#e6e6e6;
+    --link:#0b57d0; --box:#f3f4f6; --boxtext:#111111;
   }}
-  @media (prefers-color-scheme: light) {{
-    :root {{ --bg:#f5f6f8; --card:#fff; --card2:#f0f2f5; --text:#16181d;
-      --muted:#5b6472; --accent:#e8541f; --line:#e3e6eb; --link:#1a5fd0; }}
+  html[data-theme="dark"] {{
+    --bg:#15171a; --text:#e9eaec; --muted:#9aa1ab; --line:#2a2d33;
+    --link:#7fb1ff; --box:#23262c; --boxtext:#e9eaec;
   }}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; background:var(--bg); color:var(--text);
-    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }}
-  header {{ position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line);
-    padding:16px 20px; z-index:5; }}
-  .wrap {{ max-width:760px; margin:0 auto; }}
-  .brand {{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }}
-  .brand h1 {{ margin:0; font-size:22px; letter-spacing:-0.5px; }}
-  .brand .accent {{ color:var(--accent); }}
-  .brand .tag {{ color:var(--muted); font-size:13px; }}
-  .gen {{ color:var(--muted); font-size:12px; margin-top:4px; }}
-  .cats {{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }}
-  .cat {{ background:var(--card2); color:var(--text); border:1px solid var(--line);
-    border-radius:999px; padding:5px 14px; font-size:13px; cursor:pointer; }}
-  .cat.active {{ background:var(--accent); color:#fff; border-color:var(--accent); }}
-  main {{ padding:18px 20px 60px; }}
-  .note {{ background:var(--card2); border:1px solid var(--line); border-radius:10px;
-    padding:10px 14px; font-size:13px; color:var(--muted); margin-bottom:16px; }}
-  .story {{ display:flex; gap:14px; background:var(--card); border:1px solid var(--line);
-    border-radius:12px; padding:14px 16px; margin-bottom:12px; }}
-  .rank {{ font-size:20px; font-weight:700; color:var(--muted); min-width:28px; text-align:right; }}
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }}
+  .wrap {{ max-width:680px; margin:0 auto; padding:0 20px; }}
+  header {{ border-bottom:1px solid var(--line); padding:18px 0 0; }}
+  .bar {{ display:flex; align-items:center; justify-content:space-between; }}
+  .logo {{ font-size:22px; font-weight:800; letter-spacing:-0.4px; }}
+  .toggle {{ background:none; border:1px solid var(--line); color:var(--muted);
+    border-radius:6px; padding:5px 12px; font-size:13px; cursor:pointer; }}
+  .toggle:hover {{ color:var(--text); }}
+  .sub {{ color:var(--muted); font-size:13px; margin-top:4px; }}
+  .cats {{ margin-top:12px; padding-bottom:12px; font-size:14px; }}
+  .cat {{ color:var(--muted); text-decoration:none; cursor:pointer; margin-right:14px; }}
+  .cat:hover {{ color:var(--text); }}
+  .cat.active {{ color:var(--text); font-weight:700; }}
+  main {{ padding:8px 0 60px; }}
+  .note {{ color:var(--muted); font-size:13px; padding:12px 0; border-bottom:1px solid var(--line); }}
+  .story {{ display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--line); }}
+  .count {{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    min-width:50px; background:var(--box); color:var(--boxtext); border-radius:6px;
+    padding:8px 6px; height:fit-content; }}
+  .count .n {{ font-size:20px; font-weight:800; line-height:1; }}
+  .count .lbl {{ font-size:10.5px; color:var(--muted); margin-top:3px; text-transform:uppercase;
+    letter-spacing:.3px; }}
   .body {{ flex:1; min-width:0; }}
-  .story h2 {{ margin:0 0 6px; font-size:17px; line-height:1.35; }}
+  .story h2 {{ margin:0; font-size:18px; line-height:1.35; font-weight:700; }}
   .story h2 a {{ color:var(--text); text-decoration:none; }}
-  .story h2 a:hover {{ color:var(--link); }}
-  .meta {{ font-size:12.5px; color:var(--muted); display:flex; gap:7px; align-items:center; flex-wrap:wrap; }}
-  .coverage {{ color:var(--accent); font-weight:600; }}
-  .dot {{ opacity:.5; }}
-  .summary {{ margin:8px 0 0; font-size:14.5px; color:var(--text); opacity:.92; }}
-  .sources {{ font-size:12.5px; color:var(--muted); margin-top:6px; }}
-  .read {{ display:inline-block; margin-top:8px; font-size:13px; font-weight:600;
-    color:var(--accent); text-decoration:none; }}
+  .story h2 a:hover {{ text-decoration:underline; }}
+  .summary {{ margin:6px 0 0; font-size:14.5px; color:var(--muted); }}
+  .meta {{ font-size:12.5px; color:var(--muted); margin-top:8px; }}
+  .read {{ display:inline-block; margin-top:8px; font-size:13px; color:var(--link);
+    text-decoration:none; }}
   .read:hover {{ text-decoration:underline; }}
   .also {{ margin-top:8px; font-size:13px; }}
   .also summary {{ cursor:pointer; color:var(--link); }}
   .also ul {{ margin:8px 0 0; padding-left:16px; }}
   .also li {{ margin:4px 0; }}
   .also a {{ color:var(--text); text-decoration:none; }}
-  .also a:hover {{ color:var(--link); }}
+  .also a:hover {{ text-decoration:underline; }}
   .also .src {{ color:var(--muted); font-size:12px; }}
-  .empty {{ color:var(--muted); }}
-  footer {{ text-align:center; color:var(--muted); font-size:12px; padding:24px; }}
+  .empty {{ color:var(--muted); padding:24px 0; }}
+  footer {{ color:var(--muted); font-size:12px; padding:24px 0 40px; }}
   footer a {{ color:var(--muted); }}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <div class="brand">
-      <h1>Fast<span class="accent">·</span>News</h1>
-      <span class="tag">the week that mattered, ranked by how many outlets carried it</span>
+    <div class="bar">
+      <div class="logo">Fast News</div>
+      <button id="themeBtn" class="toggle" type="button">Dark</button>
     </div>
-    <div class="gen">Updated {generated} · {len(data)} stories</div>
-    <div class="cats">{cat_buttons}</div>
+    <div class="sub">Top stories this week · {generated} · {len(data)} stories</div>
+    <nav class="cats">{cat_links}</nav>
   </div>
 </header>
 <main class="wrap">
@@ -232,13 +219,26 @@ def render_html(clusters: list[Cluster], now: datetime,
   {stories_html}
 </main>
 <footer class="wrap">
-  Fast-News · importance = cross-source coverage · <a href="data.json">data.json</a>
+  Fast News · ranked by how many outlets carried each story · <a href="data.json">data.json</a>
 </footer>
 <script>
-  const buttons = document.querySelectorAll('.cat');
+  const btn = document.getElementById('themeBtn');
+  function applyTheme(t) {{
+    document.documentElement.dataset.theme = t;
+    btn.textContent = (t === 'dark') ? 'Light' : 'Dark';
+  }}
+  applyTheme(document.documentElement.dataset.theme || 'light');
+  btn.addEventListener('click', () => {{
+    const next = (document.documentElement.dataset.theme === 'dark') ? 'light' : 'dark';
+    try {{ localStorage.setItem('theme', next); }} catch (e) {{}}
+    applyTheme(next);
+  }});
+
+  const links = document.querySelectorAll('.cat');
   const stories = document.querySelectorAll('.story');
-  buttons.forEach(b => b.addEventListener('click', () => {{
-    buttons.forEach(x => x.classList.remove('active'));
+  links.forEach(b => b.addEventListener('click', (e) => {{
+    e.preventDefault();
+    links.forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     const cat = b.dataset.cat;
     stories.forEach(s => {{
